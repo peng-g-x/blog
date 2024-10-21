@@ -19,18 +19,20 @@
   <meta name="author" content="pgx">
   <meta name="keywords" content="前端,后端,运维">
   
-    <meta name="description" content="生成流通过集合生成1234567891011121314151617&#x2F;&#x2F; list 列表转换为 StreamList&lt;String&gt; strList &#x3D; new ArrayList&lt;&gt;();strList.add(&quot;a&quot;);strList.add(&quot;b&quot;);Stream stream3 &#x3D; list.stream();&#x2F;&#x2F; Set 集">
+    <meta name="description" content="Stream流是Java 8新特性，通过Stream流可以简化集合遍历，提高代码可读性，同时可以避免空指针异常。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Stream流">
 <meta property="og:url" content="https://github.com/peng-g-x/blog.git/2024/10/20/Stream%E6%B5%81/index.html">
 <meta property="og:site_name" content="爱编程的小生">
-<meta property="og:description" content="生成流通过集合生成1234567891011121314151617&#x2F;&#x2F; list 列表转换为 StreamList&lt;String&gt; strList &#x3D; new ArrayList&lt;&gt;();strList.add(&quot;a&quot;);strList.add(&quot;b&quot;);Stream stream3 &#x3D; list.stream();&#x2F;&#x2F; Set 集">
+<meta property="og:description" content="Stream流是Java 8新特性，通过Stream流可以简化集合遍历，提高代码可读性，同时可以避免空指针异常。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/blog/images/java/java.jpg">
 <meta property="article:published_time" content="2024-10-20T14:38:34.000Z">
-<meta property="article:modified_time" content="2024-10-20T14:43:11.065Z">
+<meta property="article:modified_time" content="2024-10-21T15:44:54.485Z">
 <meta property="article:author" content="pgx">
 <meta property="article:tag" content="Stream流">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://github.com/blog/images/java/java.jpg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -255,7 +257,7 @@
         
         
           <!-- compatible with older versions-->
-          31 分钟
+          32 分钟
         
       </span>
     
@@ -306,7 +308,11 @@
             
               <div class="markdown-body">
                 
-                <h2 id="生成流"><a href="#生成流" class="headerlink" title="生成流"></a>生成流</h2><h3 id="通过集合生成"><a href="#通过集合生成" class="headerlink" title="通过集合生成"></a>通过集合生成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// list 列表转换为 Stream</span><br>List&lt;String&gt; strList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>strList.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strList.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream3</span> <span class="hljs-operator">=</span> list.stream();<br><br><span class="hljs-comment">// Set 集合转换为 Stream</span><br>Set&lt;String&gt; strSet = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();<br>strSet.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strSet.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream4</span> <span class="hljs-operator">=</span> strSet.stream();<br><br><span class="hljs-comment">// Map 集合转换为 Stream</span><br>Map&lt;String,Integer&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>map.put(<span class="hljs-string">&quot;a&quot;</span>, <span class="hljs-number">100</span>);<br>map.put(<span class="hljs-string">&quot;b&quot;</span>, <span class="hljs-number">200</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream5</span> <span class="hljs-operator">=</span> map.entrySet().stream();<br></code></pre></td></tr></table></figure>
+                <p>Stream流是Java 8新特性，通过Stream流可以简化集合遍历，提高代码可读性，同时可以避免空指针异常。</p>
+<span id="more"></span>
+
+
+<h2 id="生成流"><a href="#生成流" class="headerlink" title="生成流"></a>生成流</h2><h3 id="通过集合生成"><a href="#通过集合生成" class="headerlink" title="通过集合生成"></a>通过集合生成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// list 列表转换为 Stream</span><br>List&lt;String&gt; strList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>strList.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strList.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream3</span> <span class="hljs-operator">=</span> list.stream();<br><br><span class="hljs-comment">// Set 集合转换为 Stream</span><br>Set&lt;String&gt; strSet = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();<br>strSet.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strSet.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream4</span> <span class="hljs-operator">=</span> strSet.stream();<br><br><span class="hljs-comment">// Map 集合转换为 Stream</span><br>Map&lt;String,Integer&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>map.put(<span class="hljs-string">&quot;a&quot;</span>, <span class="hljs-number">100</span>);<br>map.put(<span class="hljs-string">&quot;b&quot;</span>, <span class="hljs-number">200</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream5</span> <span class="hljs-operator">=</span> map.entrySet().stream();<br></code></pre></td></tr></table></figure>
 
 <h3 id="通过数组生成"><a href="#通过数组生成" class="headerlink" title="通过数组生成"></a>通过数组生成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span>[] intArr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[]&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-type">IntStream</span> <span class="hljs-variable">stream</span> <span class="hljs-operator">=</span> Arrays.stream(intArr);<br></code></pre></td></tr></table></figure>
 
@@ -595,8 +601,20 @@
           {"appId":"O8t8HfNzX7A31DwIoNDgwKX1-gzGzoHsz","appKey":"D34IA8wpxi5QNMPCuXET1Exs","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"https://o8t8hfnz.lc-cn-n1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
           {
             el: "#valine",
+            app_id: "填写在 Leancloud 中的数据",
+            app_key: "填写在 Leancloud 中的数据",
+            placeholder: "留下点什么叭... ᶘ ᵒᴥᵒᶅ（自行修改）",
             path: window.location.pathname,
-            master: "",
+            avatar: "monsterid",
+            meta: ["nick","mail","link"],
+            pageSize: "10",
+            lang: "zh-CN",
+            highlight: false,
+            recordIP: false,
+            serverURLs: "",
+            // el: "#valine",
+            // path: window.location.pathname,
+            // master: "",
             friends: "",
             tagMeta: ["博主","友人","访客"]
           }
