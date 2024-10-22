@@ -26,13 +26,13 @@
 <meta property="og:site_name" content="爱编程的小生">
 <meta property="og:description" content="Stream流是Java 8新特性，通过Stream流可以简化集合遍历，提高代码可读性，同时可以避免空指针异常。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://github.com/blog/images/java/java.jpg">
+<meta property="og:image" content="https://github.com/blog/img/v2_3c79da881211ad3f955a814be0e210f9_720w.jpg">
 <meta property="article:published_time" content="2024-10-20T14:38:34.000Z">
-<meta property="article:modified_time" content="2024-10-21T15:44:54.485Z">
+<meta property="article:modified_time" content="2024-10-22T16:36:31.018Z">
 <meta property="article:author" content="pgx">
 <meta property="article:tag" content="Stream流">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://github.com/blog/images/java/java.jpg">
+<meta name="twitter:image" content="https://github.com/blog/img/v2_3c79da881211ad3f955a814be0e210f9_720w.jpg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -215,7 +215,7 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/blog/img/default.png') no-repeat center center; background-size: cover;">
+     style="background: url('/blog/img/v2_3c79da881211ad3f955a814be0e210f9_720w.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -310,8 +310,7 @@
                 
                 <p>Stream流是Java 8新特性，通过Stream流可以简化集合遍历，提高代码可读性，同时可以避免空指针异常。</p>
 <span id="more"></span>
-
-
+<p><img src="/blog/peng-g-x/blog/2024/10/20/Stream%E6%B5%81/v2_3c79da881211ad3f955a814be0e210f9_720w.jpg" srcset="/blog/img/loading.gif" lazyload></p>
 <h2 id="生成流"><a href="#生成流" class="headerlink" title="生成流"></a>生成流</h2><h3 id="通过集合生成"><a href="#通过集合生成" class="headerlink" title="通过集合生成"></a>通过集合生成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// list 列表转换为 Stream</span><br>List&lt;String&gt; strList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>strList.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strList.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream3</span> <span class="hljs-operator">=</span> list.stream();<br><br><span class="hljs-comment">// Set 集合转换为 Stream</span><br>Set&lt;String&gt; strSet = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();<br>strSet.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strSet.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream4</span> <span class="hljs-operator">=</span> strSet.stream();<br><br><span class="hljs-comment">// Map 集合转换为 Stream</span><br>Map&lt;String,Integer&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>map.put(<span class="hljs-string">&quot;a&quot;</span>, <span class="hljs-number">100</span>);<br>map.put(<span class="hljs-string">&quot;b&quot;</span>, <span class="hljs-number">200</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream5</span> <span class="hljs-operator">=</span> map.entrySet().stream();<br></code></pre></td></tr></table></figure>
 
 <h3 id="通过数组生成"><a href="#通过数组生成" class="headerlink" title="通过数组生成"></a>通过数组生成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span>[] intArr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[]&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-type">IntStream</span> <span class="hljs-variable">stream</span> <span class="hljs-operator">=</span> Arrays.stream(intArr);<br></code></pre></td></tr></table></figure>
@@ -371,10 +370,10 @@
 <li>mapToLong</li>
 </ul>
 <h3 id="flatMap流转换"><a href="#flatMap流转换" class="headerlink" title="flatMap流转换"></a>flatMap流转换</h3><p>扁平化映射，将多个stream连接成一个stream，这个操作是针对类似多维数组的，比如集合里面包含集合，相当于降维作用</p>
-<p>例如：如果想要从List<StdCls>中取出学生列表，需要取出每个班级的学生List，再for循环调用List.addAll()方法把所有班级的学生List到一个新的总和List中</p>
+<p>例如：如果想要从List<StdCls>中取出学生列表，需要取出每个班级的学生List，再for循环调用List.addAll()方法把所有班级的学生List到一个新的总和List中</StdCls></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">StdCls</span> &#123;<br>    <span class="hljs-keyword">private</span> String clsNo;<br>    <span class="hljs-keyword">private</span> List&lt;Student&gt; studentList;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>使用map映射后会变成List&lt;List<Student>&gt;，若使用flatMap会进行扁平化处理，从而将List嵌套List用stream合并成一个List</p>
+<p>使用map映射后会变成List&lt;List<Student>&gt;，若使用flatMap会进行扁平化处理，从而将List嵌套List用stream合并成一个List</Student></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;String&gt; nameList = stdClsList.stream()<br>                        .map(StdCls::getStudentList)<br>                        .flatMap(Collection::stream) <span class="hljs-comment">// 多个集合List合并</span><br>                        .map(Student::getName).collect(Collectors.toList());<br></code></pre></td></tr></table></figure>
 
 <h3 id="sorted排序"><a href="#sorted排序" class="headerlink" title="sorted排序"></a>sorted排序</h3><p>将流中的元素按照自然排序方式进行排序。</p>
