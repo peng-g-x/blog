@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://github.com/blog/img/v2_3c79da881211ad3f955a814be0e210f9_720w.jpg">
 <meta property="article:published_time" content="2024-10-20T14:38:34.000Z">
-<meta property="article:modified_time" content="2024-10-22T16:36:31.018Z">
+<meta property="article:modified_time" content="2024-10-23T10:59:07.591Z">
 <meta property="article:author" content="pgx">
 <meta property="article:tag" content="Stream流">
 <meta name="twitter:card" content="summary_large_image">
@@ -80,7 +80,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"github.com","root":"/blog/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"O8t8HfNzX7A31DwIoNDgwKX1-gzGzoHsz","app_key":"D34IA8wpxi5QNMPCuXET1Exs","server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/blog/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"github.com","root":"/blog/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"O8t8HfNzX7A31DwIoNDgwKX1-gzGzoHsz","app_key":"D34IA8wpxi5QNMPCuXET1Exs","server_url":null,"path":"window.location.pathname","ignore_local":true},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/blog/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -305,12 +305,23 @@
           <article class="post-content mx-auto">
             <h1 id="seo-header">Stream流</h1>
             
+              <p id="updated-time" class="note note-info" style="">
+                
+                  
+                    本文最后更新于 2024年10月23日 晚上
+                  
+                
+              </p>
+            
             
               <div class="markdown-body">
                 
                 <p>Stream流是Java 8新特性，通过Stream流可以简化集合遍历，提高代码可读性，同时可以避免空指针异常。</p>
 <span id="more"></span>
-<p><img src="/blog/peng-g-x/blog/2024/10/20/Stream%E6%B5%81/v2_3c79da881211ad3f955a814be0e210f9_720w.jpg" srcset="/blog/img/loading.gif" lazyload></p>
+<!-- ![](v2_3c79da881211ad3f955a814be0e210f9_720w.jpg) -->
+
+<!-- <img src="/blog/peng-g-x/2024/10/20/Stream%E6%B5%81/v2_3c79da881211ad3f955a814be0e210f9_720w.jpg" srcset="/blog/img/loading.gif" lazyload class=""> -->
+
 <h2 id="生成流"><a href="#生成流" class="headerlink" title="生成流"></a>生成流</h2><h3 id="通过集合生成"><a href="#通过集合生成" class="headerlink" title="通过集合生成"></a>通过集合生成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// list 列表转换为 Stream</span><br>List&lt;String&gt; strList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>strList.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strList.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream3</span> <span class="hljs-operator">=</span> list.stream();<br><br><span class="hljs-comment">// Set 集合转换为 Stream</span><br>Set&lt;String&gt; strSet = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();<br>strSet.add(<span class="hljs-string">&quot;a&quot;</span>);<br>strSet.add(<span class="hljs-string">&quot;b&quot;</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream4</span> <span class="hljs-operator">=</span> strSet.stream();<br><br><span class="hljs-comment">// Map 集合转换为 Stream</span><br>Map&lt;String,Integer&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>map.put(<span class="hljs-string">&quot;a&quot;</span>, <span class="hljs-number">100</span>);<br>map.put(<span class="hljs-string">&quot;b&quot;</span>, <span class="hljs-number">200</span>);<br><span class="hljs-type">Stream</span> <span class="hljs-variable">stream5</span> <span class="hljs-operator">=</span> map.entrySet().stream();<br></code></pre></td></tr></table></figure>
 
 <h3 id="通过数组生成"><a href="#通过数组生成" class="headerlink" title="通过数组生成"></a>通过数组生成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span>[] intArr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[]&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-type">IntStream</span> <span class="hljs-variable">stream</span> <span class="hljs-operator">=</span> Arrays.stream(intArr);<br></code></pre></td></tr></table></figure>
