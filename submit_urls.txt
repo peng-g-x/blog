@@ -1,3 +1,5 @@
+https://github.com/IT-PXS/blog.git/2024/12/14/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%882-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%89/
+https://github.com/IT-PXS/blog.git/2024/12/05/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2024/12/09/Java/Java%E9%9B%86%E5%90%88/List%EF%BC%881-ArrayList%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2024/12/11/Java/Java%E9%9B%86%E5%90%88/List%EF%BC%883-CopyOnWriteArrayList%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2024/12/10/Java/Java%E9%9B%86%E5%90%88/List%EF%BC%882-LinkedList%EF%BC%89/
@@ -6,5 +8,3 @@ https://github.com/IT-PXS/blog.git/2024/11/16/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E
 https://github.com/IT-PXS/blog.git/2024/11/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%883-Scheduler%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2024/11/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%882-Trigger%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2024/11/12/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%881-Job%EF%BC%89/
-https://github.com/IT-PXS/blog.git/2024/11/08/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/SpringBoot%20Task/
-https://github.com/IT-PXS/blog.git/2024/12/05/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/
