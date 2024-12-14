@@ -85,3 +85,6 @@
 
 
 /** 分类页样式 END **/
+#post p,#post ol,#post li,#post strong,#post tr {
+    font-size: 16px !important;
+}
