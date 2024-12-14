@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Quartz（5-JobStore） | 爱编程的小生</title><meta name="author" content="爱编程的小生"><meta name="copyright" content="爱编程的小生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="theme-color" content="#ffffff"><meta name="msvalidate.01" content="42D39FDCDA422F751C046EF1D3E47A32"><meta name="description" content="Quartz 的 JobStore 是用于存储调度器数据的组件，支持内存存储（RAMJobStore）和数据库存储（JDBCJobStore）。RAMJobStore 性能高但不持久化，适合临时任务；JDBCJobStore 支持分布式集群和任务持久化。选择合适的 JobStore 需根据业务需求和任务规模综合考虑。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Quartz（5-JobStore）">
+<meta property="og:url" content="https://github.com/IT-PXS/blog.git/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/index.html">
+<meta property="og:site_name" content="爱编程的小生">
+<meta property="og:description" content="Quartz 的 JobStore 是用于存储调度器数据的组件，支持内存存储（RAMJobStore）和数据库存储（JDBCJobStore）。RAMJobStore 性能高但不持久化，适合临时任务；JDBCJobStore 支持分布式集群和任务持久化。选择合适的 JobStore 需根据业务需求和任务规模综合考虑。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/IT-PXS/blog.git/img/index/quartz.png">
+<meta property="article:published_time" content="2024-12-13T14:38:34.000Z">
+<meta property="article:modified_time" content="2024-12-14T15:56:17.974Z">
+<meta property="article:author" content="爱编程的小生">
+<meta property="article:tag" content="定时任务">
+<meta property="article:tag" content="Quartz">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/IT-PXS/blog.git/img/index/quartz.png"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="https://github.com/IT-PXS/blog.git/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?7c3d43fea2824135a47becbdad0a5150";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"作者: 爱编程的小生","link":"链接: ","source":"来源: 爱编程的小生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'medium_zoom',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#2d3035","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Quartz（5-JobStore）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-12-14 23:56:17'
+}</script><link rel="stylesheet" href="/blog/css/custom.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/blog/img/butterfly-icon.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/blog/"><span class="site-name">爱编程的小生</span></a><a class="nav-page-title" href="/blog/"><span class="site-name">Quartz（5-JobStore）</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Quartz（5-JobStore）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-13T14:38:34.000Z" title="发表于 2024-12-13 22:38:34">2024-12-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-14T15:56:17.974Z" title="更新于 2024-12-14 23:56:17">2024-12-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/blog/categories/Java/">Java</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/blog/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h2 id="JobStore">JobStore</h2>
+<p>JobStore 是存放 Job 和 Trigger 的地方。当我们调用 Scheduler 对象的 scheduleJob 时就会将其存入 JobStore 中，然后供 quartzSchedulerThread 使用。</p>
+<p><strong>为什么需要 JobStore？</strong></p>
+<p>因为我们需要被 Scheduler 调用的任务大多数并不是一次性的任务，而是需要被定时触发，或者某个时间点才能被触发的，因此我们需要一个容器来存储 Job 和 Trigger 的相关内容。</p>
+<p>其次，quartz 框架还有考虑到持久化存储的场景，比如说将对应的数据存放到数据库，这时候存放或者读取数据库里面的数据都需要有一个与之对应的容器。</p>
+<h3 id="方法">方法</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">JobStore</span> &#123;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">//存储job和tigger</span></span><br><span class="line">   <span class="keyword">void</span> <span class="title function_">storeJobAndTrigger</span><span class="params">(JobDetail newJob, OperableTrigger newTrigger)</span> </span><br><span class="line">        <span class="keyword">throws</span> ObjectAlreadyExistsException, JobPersistenceException;</span><br><span class="line">		</span><br><span class="line">   <span class="comment">//获取下一次需要进行触发的触发器</span></span><br><span class="line">   List&lt;OperableTrigger&gt; <span class="title function_">acquireNextTriggers</span><span class="params">(<span class="type">long</span> noLaterThan, <span class="type">int</span> maxCount, <span class="type">long</span> timeWindow)</span></span><br><span class="line">        <span class="keyword">throws</span> JobPersistenceException;</span><br><span class="line">	</span><br><span class="line">   <span class="comment">//释放获取到的触发器</span></span><br><span class="line">   <span class="keyword">void</span> <span class="title function_">releaseAcquiredTrigger</span><span class="params">(OperableTrigger trigger)</span>;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">//触发器被触发</span></span><br><span class="line">   List&lt;TriggerFiredResult&gt; <span class="title function_">triggersFired</span><span class="params">(List&lt;OperableTrigger&gt; triggers)</span> <span class="keyword">throws</span> JobPersistenceException;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">//触发器触发完成</span></span><br><span class="line">   <span class="keyword">void</span> <span class="title function_">triggeredJobComplete</span><span class="params">(OperableTrigger trigger, JobDetail jobDetail, CompletedExecutionInstruction triggerInstCode)</span>;</span><br><span class="line">    </span><br><span class="line">    .....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="分类">分类</h3>
+<p><img src="1.png" alt=""></p>
+<h3 id="基本配置">基本配置</h3>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Scheduler 实例名</span></span><br><span class="line"><span class="attr">org.quartz.scheduler.instanceName</span> = <span class="string">MyScheduler</span></span><br><span class="line"><span class="attr">org.quartz.scheduler.instanceId</span> = <span class="string">AUTO</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 集群配置</span></span><br><span class="line"><span class="attr">org.quartz.jobStore.isClustered</span> = <span class="string">true</span></span><br><span class="line"><span class="attr">org.quartz.jobStore.clusterCheckinInterval</span> = <span class="string">20000</span></span><br><span class="line"><span class="comment"># 使用的 JobStore 类型</span></span><br><span class="line"><span class="attr">org.quartz.jobStore.class</span> = <span class="string">org.quartz.impl.jdbcjobstore.JobStoreTX</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 数据源配置</span></span><br><span class="line"><span class="attr">org.quartz.jobStore.dataSource</span> = <span class="string">quartzDataSource</span></span><br><span class="line"><span class="attr">org.quartz.jobStore.tablePrefix</span> = <span class="string">QRTZ_</span></span><br><span class="line"><span class="comment"># 数据源详细信息</span></span><br><span class="line"><span class="attr">org.quartz.dataSource.quartzDataSource.driver</span> = <span class="string">com.mysql.cj.jdbc.Driver</span></span><br><span class="line"><span class="attr">org.quartz.dataSource.quartzDataSource.URL</span> = <span class="string">jdbc:mysql://localhost:3306/quartz</span></span><br><span class="line"><span class="attr">org.quartz.dataSource.quartzDataSource.user</span> = <span class="string">root</span></span><br><span class="line"><span class="attr">org.quartz.dataSource.quartzDataSource.password</span> = <span class="string">password</span></span><br><span class="line"><span class="attr">org.quartz.dataSource.quartzDataSource.maxConnections</span> = <span class="string">10</span></span><br></pre></td></tr></table></figure>
+<h2 id="RAMJobStore">RAMJobStore</h2>
+<p>在 quartz 的默认配置中使用的就是 RAMJobStore。顾名思义，RAMJobStore 是基于内存来存储的 Job 相关数据，也就是在程序重启之后，对应的数据就会消失，并且它不支持集群，也就是说它不可以把需要调度的任务分配到多台机器上面进行执行。</p>
+<h3 id="优缺点">优缺点</h3>
+<ol>
+<li>
+<p>优点：使用内存存储调度数据，速度快，配置简单，适合轻量级或短生命周期的应用场景。</p>
+</li>
+<li>
+<p>缺点：数据仅存储在内存中，系统重启后数据会丢失，不支持多节点集群。</p>
+</li>
+</ol>
+<h3 id="属性">属性</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RAMJobStore</span> <span class="keyword">implements</span> <span class="title class_">JobStore</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashMap&lt;JobKey, JobWrapper&gt; jobsByKey = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;JobKey, JobWrapper&gt;(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashMap&lt;TriggerKey, TriggerWrapper&gt; triggersByKey = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;TriggerKey, TriggerWrapper&gt;(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashMap&lt;String, HashMap&lt;JobKey, JobWrapper&gt;&gt; jobsByGroup = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, HashMap&lt;JobKey, JobWrapper&gt;&gt;(<span class="number">25</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashMap&lt;String, HashMap&lt;TriggerKey, TriggerWrapper&gt;&gt; triggersByGroup = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, HashMap&lt;TriggerKey, TriggerWrapper&gt;&gt;(<span class="number">25</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> TreeSet&lt;TriggerWrapper&gt; timeTriggers = <span class="keyword">new</span> <span class="title class_">TreeSet</span>&lt;TriggerWrapper&gt;(<span class="keyword">new</span> <span class="title class_">TriggerWrapperComparator</span>());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashMap&lt;String, Calendar&gt; calendarsByName = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, Calendar&gt;(<span class="number">25</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> Map&lt;JobKey, List&lt;TriggerWrapper&gt;&gt; triggersByJob = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;JobKey, List&lt;TriggerWrapper&gt;&gt;(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">Object</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashSet&lt;String&gt; pausedTriggerGroups = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;String&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashSet&lt;String&gt; pausedJobGroups = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;String&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> HashSet&lt;JobKey&gt; blockedJobs = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;JobKey&gt;();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> <span class="variable">misfireThreshold</span> <span class="operator">=</span> <span class="number">5000l</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> SchedulerSignaler signaler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>jobsByKey：按 jobKey 进行分组的 HashMap 集合</li>
+<li>triggersByKey：按 jobKey 进行分组的 HashMap 集合</li>
+<li>jobsByGroup：按 job 的分组名进行分组的 HashMap 集合</li>
+<li>triggersByGroup：按 trigger 的分组名进行分组的 HashMap 集合</li>
+<li>timeTriggers：具有下次触发时间的 trigger 集合</li>
+<li>triggers：trigger 集合</li>
+<li>lock：操作 RAMJobStore 时需要获取的锁</li>
+<li>pausedTriggerGroups：被暂停的 trigger 分组名的 HashSet 集合</li>
+<li>pausedJobGroups：被暂停的 job 分组名的 HashSet 集合</li>
+<li>blockedJobs：被锁住的任务 key 的 HashSet 集合</li>
+<li>misfireThreshold：失火阈值</li>
+<li>signaler：SchedulerSignaler 信号器</li>
+</ol>
+<h2 id="TerracottaJobStore">TerracottaJobStore</h2>
+<p>TerracottaJobStore 提供了一种无需数据库就可以进行缩放和健壮性的方法。这意味着您的数据库可以避免来自 Quartz 的负载，并且可以将所有的资源保存到您的应用程序的其他部分。</p>
+<p>TerracottaJobStore 可以是集群的或非集群的，在这两种情况下，都为您的工作数据提供了一个存储介质，在应用程序重新启动之间是持久的，因为数据存储在 Terracotta 服务器中。它的性能比通过 JDBCJobStore(大约一个数量级更好) 使用数据库要好得多，但是比 RAMJobStore 慢得多。</p>
+<p>要使用 TerracottaJobStore(假设您使用的是 StdSchedulerFactory)，只需指定类名称 org.quartz.jobStore.class = org.terracotta.quartz.TerracottaJobStore。作为您用来配置 quartz 的 JobStore 类属性，并添加一个额外的配置行来指定 Terracotta 服务器的位置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">org.quartz.jobStore.class</span> = <span class="string">org.terracotta.quartz.TerracottaJobStore</span></span><br><span class="line"><span class="attr">org.quartz.jobStore.tcConfigUrl</span> = <span class="string">localhost:9510</span></span><br></pre></td></tr></table></figure>
+<h2 id="JobStoreSupport">JobStoreSupport</h2>
+<p>JobStoreSupport 是 Quartz 框架中 JDBCJobStore 的核心支持类，它提供了基于 JDBC 的任务存储的基础实现。通过扩展 JobStoreSupport，Quartz 实现了两种 JDBCJobStore：JobStoreTX 和 JobStoreCMT。</p>
+<h3 id="作用">作用</h3>
+<ol>
+<li>它定义了与数据库交互的通用逻辑，比如插入、更新、删除调度数据。</li>
+<li>提供了事务管理的基础功能，允许子类（如 JobStoreTX 和 JobStoreCMT）选择具体的事务管理方式。</li>
+</ol>
+<h3 id="JobStoreTX">JobStoreTX</h3>
+<h4 id="特点">特点</h4>
+<ol>
+<li>使用独立的事务管理。</li>
+<li>每次数据库操作开启和提交一个新的事务。</li>
+<li>适合独立运行的 Quartz 应用。</li>
+</ol>
+<h4 id="事务逻辑">事务逻辑</h4>
+<ol>
+<li>每个调度操作通过 JDBC 手动开启、提交或回滚事务。</li>
+<li>不依赖外部容器的事务管理器。</li>
+</ol>
+<h3 id="JobStoreCMT">JobStoreCMT</h3>
+<h4 id="特点-2">特点</h4>
+<ol>
+<li>使用容器管理的事务（CMT, Container-Managed Transaction）。</li>
+<li>适合运行在 J2EE 应用服务器中的 Quartz 应用。</li>
+</ol>
+<h4 id="事务逻辑-2">事务逻辑</h4>
+<ol>
+<li>依赖应用服务器（如 WebLogic、JBoss）提供的事务管理器。</li>
+<li>Quartz 不直接管理事务，而是将事务逻辑交由容器处理。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://IT-PXS.github.io/blog">爱编程的小生</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://github.com/IT-PXS/blog.git/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/">https://github.com/IT-PXS/blog.git/2024/12/13/Java/定时任务/Quartz/Quartz（5-JobStore）/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://github.com/IT-PXS/blog.git" target="_blank">爱编程的小生</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog/tags/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/">定时任务</a><a class="post-meta__tags" href="/blog/tags/Quartz/">Quartz</a></div><div class="post-share"><div class="social-share" data-image="/blog/img/index/quartz.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/blog/2024/12/11/Java/Java%E9%9B%86%E5%90%88/List%EF%BC%883-CopyOnWriteArrayList%EF%BC%89/" title="List（3-CopyOnWriteArrayList）"><img class="cover" src="/blog/img/index/java.jpg" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">List（3-CopyOnWriteArrayList）</div></div><div class="info-2"><div class="info-item-1">CopyOnWriteArrayList是Java集合框架中线程安全的列表实现，适用于并发环境。其核心特性是在写操作时复制底层数组，确保读操作不受影响。适合读多写少的场景，提供一致性快照和线程安全性，但因复制开销较高，不适用于高频写操作。位于java.util.concurrent包中。</div></div></div></a><a class="pagination-related" href="/blog/2024/12/14/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%882-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%89/" title="Git（2-常用命令）"><img class="cover" src="/blog/img/index/git.png" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Git（2-常用命令）</div></div><div class="info-2"><div class="info-item-1">Git是一种常用的版本控制工具，常用命令包括git init（初始化仓库）、git clone（克隆仓库）、git add（添加文件到暂存区）、git commit（提交更改）、git push（推送到远程仓库）、git pull（拉取更新）、git branch（分支管理）和git merge（合并分支），帮助开发者高效管理代码版本。</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/blog/2024/11/12/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%881-Job%EF%BC%89/" title="Quartz（1-Job）"><img class="cover" src="/blog/img/index/quartz.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="info-item-2">Quartz（1-Job）</div></div><div class="info-2"><div class="info-item-1">Quartz Job是Quartz框架中具体执行任务的定义单元，负责实现需要调度的逻辑。每次任务触发时，Job实例会被调用并执行相应操作。结合Trigger，Quartz Job可以灵活实现定时、周期性或一次性任务调度，广泛应用于企业应用自动化任务管理。</div></div></div></a><a class="pagination-related" href="/blog/2024/11/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%882-Trigger%EF%BC%89/" title="Quartz（2-Trigger）"><img class="cover" src="/blog/img/index/quartz.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="info-item-2">Quartz（2-Trigger）</div></div><div class="info-2"><div class="info-item-1">Quartz Trigger是Quartz框架中用于控制任务调度时间和频率的组件。它决定了Quartz Job的执行时机，支持多种类型，如SimpleTrigger（简单触发器）和CronTrigger（基于cron表达式）。开发者可以灵活配置触发规则，实现复杂的任务调度方案，适应多种应用场景需求。</div></div></div></a><a class="pagination-related" href="/blog/2024/11/16/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%884-Listener%EF%BC%89/" title="Quartz（4-Listener）"><img class="cover" src="/blog/img/index/quartz.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-16</div><div class="info-item-2">Quartz（4-Listener）</div></div><div class="info-2"><div class="info-item-1">Quartz Listener是Quartz Scheduler中用于监听调度器事件的组件。它可以监控任务执行、触发器触发及调度器生命周期的变化。通过实现JobListener、TriggerListener或SchedulerListener接口，开发者能够捕获和处理关键事件，实现任务的精细控制、日志记录及错误处理，增强调度器的管理能力。</div></div></div></a><a class="pagination-related" href="/blog/2024/11/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%883-Scheduler%EF%BC%89/" title="Quartz（3-Scheduler）"><img class="cover" src="/blog/img/index/quartz.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-14</div><div class="info-item-2">Quartz（3-Scheduler）</div></div><div class="info-2"><div class="info-item-1">Quartz Scheduler是一个功能强大的开源任务调度器，广泛用于Java应用中。它支持简单和复杂的任务调度，包括定时、循环执行等，灵活的API设计允许开发者自定义触发器、作业和时间规则。Quartz常用于构建企业级系统的自动化流程。</div></div></div></a><a class="pagination-related" href="/blog/2024/12/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%886-SpringBoot%E6%95%B4%E5%90%88%EF%BC%89/" title="Quartz（6-SpringBoot整合）"><img class="cover" src="/blog/img/index/quartz.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-14</div><div class="info-item-2">Quartz（6-SpringBoot整合）</div></div><div class="info-2"><div class="info-item-1">Quartz与Spring Boot的整合让任务调度更简单高效。通过使用Spring配置，开发者可以方便地定义和管理Quartz作业、触发器和调度器。整合支持依赖注入，简化配置和维护，尤其适用于复杂的企业应用。结合Spring Boot的特性，可以实现灵活的定时任务管理和动态调度。</div></div></div></a><a class="pagination-related" href="/blog/2024/11/08/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/SpringBoot%20Task/" title="SpringBoot Task"><img class="cover" src="/blog/img/index/springboot%20task3.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-08</div><div class="info-item-2">SpringBoot Task</div></div><div class="info-2"><div class="info-item-1">Spring Boot任务功能帮助开发者轻松管理定时和异步任务，简化后台任务的创建和调度。通过注解如@Scheduled和@Async，开发者可实现定时任务、周期性任务或并行执行任务，从而提高系统性能和任务自动化，广泛应用于各种业务场景。</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/blog/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">爱编程的小生</div><div class="author-info-description">一个IT爱好者</div><div class="site-data"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" href="https://github.com/IT-PXS"><i class="fab fa-github"></i><span>关注我</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/IT-PXS" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:3032428600@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">作者很懒，有时间就更新，微信公众号：爱编程的小生，邮箱：3032428600@qq.com</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JobStore"><span class="toc-number">1.</span> <span class="toc-text">JobStore</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE"><span class="toc-number">1.3.</span> <span class="toc-text">基本配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAMJobStore"><span class="toc-number">2.</span> <span class="toc-text">RAMJobStore</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">2.1.</span> <span class="toc-text">优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%9E%E6%80%A7"><span class="toc-number">2.2.</span> <span class="toc-text">属性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TerracottaJobStore"><span class="toc-number">3.</span> <span class="toc-text">TerracottaJobStore</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JobStoreSupport"><span class="toc-number">4.</span> <span class="toc-text">JobStoreSupport</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%9C%E7%94%A8"><span class="toc-number">4.1.</span> <span class="toc-text">作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JobStoreTX"><span class="toc-number">4.2.</span> <span class="toc-text">JobStoreTX</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-number">4.2.1.</span> <span class="toc-text">特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E9%80%BB%E8%BE%91"><span class="toc-number">4.2.2.</span> <span class="toc-text">事务逻辑</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JobStoreCMT"><span class="toc-number">4.3.</span> <span class="toc-text">JobStoreCMT</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E7%82%B9-2"><span class="toc-number">4.3.1.</span> <span class="toc-text">特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E9%80%BB%E8%BE%91-2"><span class="toc-number">4.3.2.</span> <span class="toc-text">事务逻辑</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>Quartz</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/12/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%886-SpringBoot%E6%95%B4%E5%90%88%EF%BC%89/" title="Quartz（6-SpringBoot整合）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（6-SpringBoot整合）"></a><div class="content"><a class="title" href="/blog/2024/12/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%886-SpringBoot%E6%95%B4%E5%90%88%EF%BC%89/" title="Quartz（6-SpringBoot整合）">Quartz（6-SpringBoot整合）</a><time datetime="2024-12-14T14:38:34.000Z" title="发表于 2024-12-14 22:38:34">2024-12-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/" title="Quartz（5-JobStore）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（5-JobStore）"></a><div class="content"><a class="title" href="/blog/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/" title="Quartz（5-JobStore）">Quartz（5-JobStore）</a><time datetime="2024-12-13T14:38:34.000Z" title="发表于 2024-12-13 22:38:34">2024-12-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/11/16/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%884-Listener%EF%BC%89/" title="Quartz（4-Listener）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（4-Listener）"></a><div class="content"><a class="title" href="/blog/2024/11/16/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%884-Listener%EF%BC%89/" title="Quartz（4-Listener）">Quartz（4-Listener）</a><time datetime="2024-11-16T14:38:34.000Z" title="发表于 2024-11-16 22:38:34">2024-11-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/11/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%883-Scheduler%EF%BC%89/" title="Quartz（3-Scheduler）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（3-Scheduler）"></a><div class="content"><a class="title" href="/blog/2024/11/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%883-Scheduler%EF%BC%89/" title="Quartz（3-Scheduler）">Quartz（3-Scheduler）</a><time datetime="2024-11-14T14:38:34.000Z" title="发表于 2024-11-14 22:38:34">2024-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/11/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%882-Trigger%EF%BC%89/" title="Quartz（2-Trigger）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（2-Trigger）"></a><div class="content"><a class="title" href="/blog/2024/11/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%882-Trigger%EF%BC%89/" title="Quartz（2-Trigger）">Quartz（2-Trigger）</a><time datetime="2024-11-13T14:38:34.000Z" title="发表于 2024-11-13 22:38:34">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/11/12/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%881-Job%EF%BC%89/" title="Quartz（1-Job）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（1-Job）"></a><div class="content"><a class="title" href="/blog/2024/11/12/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%881-Job%EF%BC%89/" title="Quartz（1-Job）">Quartz（1-Job）</a><time datetime="2024-11-12T14:38:34.000Z" title="发表于 2024-11-12 22:38:34">2024-11-12</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/12/15/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%883-IDEA%E4%BD%BF%E7%94%A8%EF%BC%89/" title="Git（3-IDEA使用）"><img src="/blog/img/index/git.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Git（3-IDEA使用）"/></a><div class="content"><a class="title" href="/blog/2024/12/15/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%883-IDEA%E4%BD%BF%E7%94%A8%EF%BC%89/" title="Git（3-IDEA使用）">Git（3-IDEA使用）</a><time datetime="2024-12-15T14:38:34.000Z" title="发表于 2024-12-15 22:38:34">2024-12-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/12/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%886-SpringBoot%E6%95%B4%E5%90%88%EF%BC%89/" title="Quartz（6-SpringBoot整合）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（6-SpringBoot整合）"/></a><div class="content"><a class="title" href="/blog/2024/12/14/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%886-SpringBoot%E6%95%B4%E5%90%88%EF%BC%89/" title="Quartz（6-SpringBoot整合）">Quartz（6-SpringBoot整合）</a><time datetime="2024-12-14T14:38:34.000Z" title="发表于 2024-12-14 22:38:34">2024-12-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/12/14/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%882-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%89/" title="Git（2-常用命令）"><img src="/blog/img/index/git.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Git（2-常用命令）"/></a><div class="content"><a class="title" href="/blog/2024/12/14/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Git/Git%EF%BC%882-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%89/" title="Git（2-常用命令）">Git（2-常用命令）</a><time datetime="2024-12-14T14:38:34.000Z" title="发表于 2024-12-14 22:38:34">2024-12-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/" title="Quartz（5-JobStore）"><img src="/blog/img/index/quartz.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Quartz（5-JobStore）"/></a><div class="content"><a class="title" href="/blog/2024/12/13/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/Quartz/Quartz%EF%BC%885-JobStore%EF%BC%89/" title="Quartz（5-JobStore）">Quartz（5-JobStore）</a><time datetime="2024-12-13T14:38:34.000Z" title="发表于 2024-12-13 22:38:34">2024-12-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/12/11/Java/Java%E9%9B%86%E5%90%88/List%EF%BC%883-CopyOnWriteArrayList%EF%BC%89/" title="List（3-CopyOnWriteArrayList）"><img src="/blog/img/index/java.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="List（3-CopyOnWriteArrayList）"/></a><div class="content"><a class="title" href="/blog/2024/12/11/Java/Java%E9%9B%86%E5%90%88/List%EF%BC%883-CopyOnWriteArrayList%EF%BC%89/" title="List（3-CopyOnWriteArrayList）">List（3-CopyOnWriteArrayList）</a><time datetime="2024-12-11T14:38:34.000Z" title="发表于 2024-12-11 22:38:34">2024-12-11</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2024 By 爱编程的小生</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'Ov23liNpZt9z0EBGb12H',
+      clientSecret: 'd83ac7d23712d1736a16f48d83e99d97703782c5',
+      repo: 'blog',
+      owner: 'IT-PXS',
+      admin: ['IT-PXS'],
+      //id: '2024/12/13/Java/定时任务/Quartz/Quartz（5-JobStore）/',
+      id: 'c5cf4873cf94ff6dbb1ad8c0f89e48f4',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/blog/js/custom.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/blog/js/search/local-search.js"></script></div></div></body></html>
